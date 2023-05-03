@@ -16,14 +16,16 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 ENV ANSIBLE_REPO="https://github.com/edx/ansible"
-ENV CONFIGURATION_REPO="https://github.com/edx/configuration.git"
-ARG OPENEDX_RELEASE=master
+ENV CONFIGURATION_REPO="https://github.com/qasimgulzar/configuration.git"
+ARG OPENEDX_RELEASE="open-release/juniper.master"
 ENV CONFIGURATION_VERSION="${OPENEDX_RELEASE}"
 
 # Add the deadsnakes PPA to install Python 3.8
+RUN apt install software-properties-common
+RUN add-apt-repository universe
 RUN apt-add-repository -y ppa:deadsnakes/ppa
 RUN apt-get update &&\
-    apt-get install -y python3.8-dev python3.8-distutils
+    apt-get install -y python3.9
 
 ADD util/install/ansible-bootstrap.sh /tmp/ansible-bootstrap.sh
 RUN chmod +x /tmp/ansible-bootstrap.sh
