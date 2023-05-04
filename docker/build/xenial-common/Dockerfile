@@ -25,7 +25,7 @@ RUN apt install software-properties-common
 RUN add-apt-repository universe
 RUN apt-add-repository -y ppa:deadsnakes/ppa
 RUN apt-get update &&\
-    apt-get install -y python3.9
+    apt-get install -y python3 python3-dev python3-pip
 
 ADD util/install/ansible-bootstrap.sh /tmp/ansible-bootstrap.sh
 RUN chmod +x /tmp/ansible-bootstrap.sh
