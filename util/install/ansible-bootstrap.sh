@@ -41,7 +41,7 @@ fi
 # Bootstrapping constants
 #
 VIRTUAL_ENV_VERSION="16.7.10"
-PIP_VERSION="20.0.2"
+PIP_VERSION="21.3.1"
 SETUPTOOLS_VERSION="44.1.0"
 VIRTUAL_ENV="/tmp/bootstrap"
 PYTHON_BIN="${VIRTUAL_ENV}/bin"
@@ -131,7 +131,7 @@ apt-get update -y
 apt-get install -y python2.7 python2.7-dev python-pip python-apt python-jinja2 build-essential sudo git-core libmysqlclient-dev libffi-dev libssl-dev
 
 
-pip install --upgrade pip #=="${PIP_VERSION}" TODO revert pip_version incase it doesn't work.
+pip install --upgrade pip=="${PIP_VERSION}"
 
 # pip moves to /usr/local/bin when upgraded
 PATH=/usr/local/bin:${PATH}
