@@ -128,15 +128,15 @@ fi
 # which may differ from what is pinned in virtualenvironments
 apt-get update -y
 
-apt-get install -y python2.7 python2.7-dev python-pip python-apt python-jinja2 build-essential sudo git-core libmysqlclient-dev libffi-dev libssl-dev
+apt-get install -y python3 python3-dev python3-pip python3-apt python-jinja3 build-essential sudo git-core libmysqlclient-dev libffi-dev libssl-dev
 
 
-pip install --upgrade pip=="${PIP_VERSION}"
+pip3 install --upgrade pip=="${PIP_VERSION}"
 
 # pip moves to /usr/local/bin when upgraded
 PATH=/usr/local/bin:${PATH}
-pip install setuptools=="${SETUPTOOLS_VERSION}"
-pip install virtualenv=="${VIRTUAL_ENV_VERSION}"
+pip3 install setuptools=="${SETUPTOOLS_VERSION}"
+pip3 install virtualenv=="${VIRTUAL_ENV_VERSION}"
 
 
 if [[ "true" == "${RUN_ANSIBLE}" ]]; then
