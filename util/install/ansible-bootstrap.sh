@@ -34,7 +34,7 @@ if [[ -z "${UPGRADE_OS}" ]]; then
 fi
 
 if [[ -z "${RUN_ANSIBLE}" ]]; then
-  RUN_ANSIBLE=false
+  RUN_ANSIBLE=true
 fi
 
 #
