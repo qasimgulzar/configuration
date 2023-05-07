@@ -128,7 +128,7 @@ fi
 # which may differ from what is pinned in virtualenvironments
 apt-get update -y
 
-apt-get install -y python3 python3-dev python3-pip python3-apt python-jinja3 build-essential sudo git-core libmysqlclient-dev libffi-dev libssl-dev
+apt-get install -y python3 python3-dev python3-pip python3-apt python-jinja2 build-essential sudo git-core libmysqlclient-dev libffi-dev libssl-dev
 
 
 pip3 install --upgrade pip=="${PIP_VERSION}"
