@@ -34,14 +34,14 @@ if [[ -z "${UPGRADE_OS}" ]]; then
 fi
 
 if [[ -z "${RUN_ANSIBLE}" ]]; then
-  RUN_ANSIBLE=true
+  RUN_ANSIBLE=false
 fi
 
 #
 # Bootstrapping constants
 #
 VIRTUAL_ENV_VERSION="16.7.10"
-PIP_VERSION="21.3.1"
+PIP_VERSION="18.1"
 SETUPTOOLS_VERSION="44.1.0"
 VIRTUAL_ENV="/tmp/bootstrap"
 PYTHON_BIN="${VIRTUAL_ENV}/bin"
@@ -89,9 +89,16 @@ EOF
    exit 1;
 fi
 
+if [[ "${SHORT_DIST}" == focal ]] ;then
+   PYTHON_VERSION="3.8"
+else
+   PYTHON_VERSION="3.5"
+fi
+
 EDX_PPA="deb http://ppa.edx.org ${SHORT_DIST} main"
 
 # Upgrade the OS
+rm -r /var/lib/apt/lists/* -vf
 apt-get update -y
 
 # To apt-key update in bionic, gnupg is needed.
@@ -108,7 +115,7 @@ fi
 
 # Required for add-apt-repository
 apt-get install -y software-properties-common
-if [[ "${SHORT_DIST}" != bionic ]] && [[ "${SHORT_DIST}" != xenial ]];then
+if [[ "${SHORT_DIST}" != trusty ]] && [[ "${SHORT_DIST}" != xenial ]] && [[ "${SHORT_DIST}" != bionic ]] && [[ "${SHORT_DIST}" != focal ]] ;then
   apt-get install -y python-software-properties
 fi
 
@@ -116,32 +123,50 @@ fi
 add-apt-repository -y ppa:git-core/ppa
 
 # For older software we need to install our own PPA
-# Phased out with Ubuntu 18.04 Bionic
-if [[ "${SHORT_DIST}" != bionic ]] ;then
+# Phased out with Ubuntu 18.04 Bionic and Ubuntu 20.04 Focal
+if [[ "${SHORT_DIST}" != bionic ]] && [[ "${SHORT_DIST}" != focal ]] ;then
   apt-key adv --keyserver "${EDX_PPA_KEY_SERVER}" --recv-keys "${EDX_PPA_KEY_ID}"
   add-apt-repository -y "${EDX_PPA}"
 fi
 
+# Add deadsnakes repository for python3.5 usage in
+# Ubuntu versions different than xenial.
+if [[ "${SHORT_DIST}" != xenial ]] ;then
+  add-apt-repository -y ppa:deadsnakes/ppa
+fi
 
 # Install python 2.7 latest, git and other common requirements
 # NOTE: This will install the latest version of python 2.7 and
 # which may differ from what is pinned in virtualenvironments
 apt-get update -y
 
-apt-get install -y python3 python3-dev python3-pip python3-apt python-jinja2 build-essential sudo git-core libmysqlclient-dev libffi-dev libssl-dev
+if [[ "${SHORT_DIST}" != focal ]] ;then
+  apt-get install -y python2.7 python2.7-dev python-pip python-apt python-jinja2 build-essential sudo git-core libmysqlclient-dev libffi-dev libssl-dev
+else
+  apt-get install -y python3-pip python3-apt python3-jinja2 build-essential sudo git-core libmysqlclient-dev libffi-dev libssl-dev
+fi
 
+apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python3-pip python3-apt
+apt-get install curl
+# We want to link pip to pip3 for Ubuntu versions that don't have python 2.7 so older scripts work there
+# Applies to Ubuntu 20.04 Focal
+if [[ "${SHORT_DIST}" != trusty ]] && [[ "${SHORT_DIST}" != xenial ]] && [[ "${SHORT_DIST}" != bionic ]] ;then
+  sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
+  sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+fi
 
-pip3 install --upgrade pip=="${PIP_VERSION}"
+#curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py
+#python${PYTHON_VERSION} get-pip.py
+python${PYTHON_VERSION} -m pip install --upgrade pip=="${PIP_VERSION}"
 
 # pip moves to /usr/local/bin when upgraded
 PATH=/usr/local/bin:${PATH}
-pip3 install setuptools=="${SETUPTOOLS_VERSION}"
-pip3 install virtualenv=="${VIRTUAL_ENV_VERSION}"
-
+python${PYTHON_VERSION} -m pip install setuptools=="${SETUPTOOLS_VERSION}"
+python${PYTHON_VERSION} -m pip install virtualenv=="${VIRTUAL_ENV_VERSION}"
 
 if [[ "true" == "${RUN_ANSIBLE}" ]]; then
     # create a new virtual env
-    /usr/local/bin/virtualenv "${VIRTUAL_ENV}"
+    /usr/local/bin/virtualenv --python=python${PYTHON_VERSION} "${VIRTUAL_ENV}"
 
     PATH="${PYTHON_BIN}":${PATH}
 
