@@ -25,6 +25,7 @@ COPY docker/build/edxapp/lms.yml /edx/etc/lms.yml
 
 ARG OPENEDX_RELEASE=master
 ENV OPENEDX_RELEASE=${OPENEDX_RELEASE}
+RUN apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran
 RUN sudo /edx/app/edx_ansible/venvs/edx_ansible/bin/ansible-playbook edxapp.yml \
     -c local -i '127.0.0.1,' \
     -t 'install,assets,devstack' \
